@@ -25,5 +25,4 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('dotrade/', include('dotrade.urls')),
     path('', RedirectView.as_view(url='dotrade/', permanent=True)),
-    path("accounts/", include("django.contrib.auth.urls")),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
