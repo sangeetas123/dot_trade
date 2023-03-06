@@ -13,7 +13,7 @@ from django.contrib.auth.forms import UserCreationForm
 def index(request):
     return render(request, 'dotrade/index.html')
 
-@login_required(login_url='/login/')
+@login_required(login_url='/dotrade/accounts/login')
 def dashboard(request):
     try:
         userPurchasedStocks = get_list_or_404(PurchasedStock, userId=request.user.id)

@@ -1,5 +1,7 @@
 from django.db import models
 
+from django.contrib.auth.models import User
+
 class Stock(models.Model):
     name = models.CharField(max_length=200)
     symbol = models.CharField(max_length=3)
@@ -8,7 +10,7 @@ class Stock(models.Model):
     def __str__(self):
         return self.name
 
-
+'''
 class User(models.Model):
     name = models.CharField(max_length=200)
     email = models.CharField(max_length=200)
@@ -17,7 +19,7 @@ class User(models.Model):
 
     def __str__(self):
         return self.name
-
+'''
 
 class PurchasedStock(models.Model):
     stockId = models.ForeignKey(Stock, on_delete=models.CASCADE)
