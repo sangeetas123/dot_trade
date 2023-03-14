@@ -20,9 +20,23 @@ from django.urls import include
 from django.views.generic import RedirectView
 from django.conf import settings
 from django.conf.urls.static import static
+from django.apps import apps
+
+from django_otp.admin import OTPAdminSite
+from django.contrib.auth.models import User
+from django_otp.plugins.otp_totp.models import TOTPDevice
+from django_otp.plugins.otp_totp.admin import TOTPDeviceAdmin
+
+class OTPAdmin(OTPAdminSite):
+    pass
+
+admin_site = OTPAdmin(name='OTPAdmin')
+admin_site.register(User)
+admin_site.register(apps.get_model('dotrade', 'Stock'))
+admin_site.register(TOTPDevice, TOTPDeviceAdmin)
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', admin_site.urls),
     path('dotrade/', include('dotrade.urls')),
     path('', RedirectView.as_view(url='dotrade/', permanent=True)),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
