@@ -27,6 +27,9 @@ from django.contrib.auth.models import User
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from django_otp.plugins.otp_totp.admin import TOTPDeviceAdmin
 
+from . import views
+from .views import login_wrapper
+
 class OTPAdmin(OTPAdminSite):
     pass
 
@@ -34,6 +37,9 @@ admin_site = OTPAdmin(name='OTPAdmin')
 admin_site.register(User)
 admin_site.register(apps.get_model('dotrade', 'Stock'))
 admin_site.register(TOTPDevice, TOTPDeviceAdmin)
+admin_site.login = login_wrapper(admin_site.login)  # rate limit
+
+handler403 = views.handler403
 
 urlpatterns = [
     path('admin/', admin_site.urls),
