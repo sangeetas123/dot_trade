@@ -136,3 +136,6 @@ LOGIN_REDIRECT_URL = "/dotrade/dashboard"
 # Password reset
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 EMAIL_FILE_PATH = BASE_DIR / "sent_emails"
+
+# Sessions
+SESSION_COOKIE_AGE = 60
