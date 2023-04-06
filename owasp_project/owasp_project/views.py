@@ -33,11 +33,14 @@ def otpView(request):
         print("anon " , request.POST)
         form = OTPTokenForm(request.user, request, request.POST)
         print("error form", form.errors.as_data())
+        print("request_session post", request.session.get('tmp_data'))
+        stockId = request.session.get('tmp_data')
         if form.is_valid():
             #go back to deletion
             next = request.POST.get('next', '/')
             print("valid form, redirecting ", next)
-            return redirect("/admin/dotrade/stock/11/delete/")
+            url = "/admin/dotrade/stock/%s/delete/" % stockId
+            return redirect(url)
 
         else:
             print("invalid form", form.errors.as_data(), " ", form.non_field_errors())
@@ -46,7 +49,7 @@ def otpView(request):
 
     else:
         request.referrer = request.META.get('HTTP_REFERER', '/')
-        print("request_session ", request.referrer)
+        print("request_session ", request.session.get('tmp_data'))
         form = OTPTokenForm(request.user)
     return render(request, 'otp.html', {'form': form})
 

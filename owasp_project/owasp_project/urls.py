@@ -58,7 +58,8 @@ class StockAdmin(admin.ModelAdmin):
             super().delete_model(request, client)
         else:
             request.POST.next = request.path
-            print("here after, next:", request.POST.next)
+            print("here after, next:", request.POST.get('_selected_action'))
+            request.session['tmp_data'] = 12
             return redirect("/verifyOtp", request)
         '''
         print(request.user)
