@@ -141,4 +141,4 @@ EMAIL_FILE_PATH = BASE_DIR / "sent_emails"
 SESSION_COOKIE_AGE = 600
 SESSION_COOKIE_SAMESITE = 'Strict'
 SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
-SESSION_COOKIE_NAME = "__Host-Session"
+#SESSION_COOKIE_NAME = "__Host-Session"

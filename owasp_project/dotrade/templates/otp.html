@@ -1,0 +1,7 @@
+<h2>Enter OTP</h2>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <input type="hidden" name="next" value="{{ request.referrer }}">
+  <button type="submit">Submit</button>
+</form>
