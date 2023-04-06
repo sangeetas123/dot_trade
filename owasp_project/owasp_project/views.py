@@ -37,7 +37,7 @@ def otpView(request):
             #go back to deletion
             next = request.POST.get('next', '/')
             print("valid form, redirecting ", next)
-            return redirect(next)
+            return redirect("/admin/dotrade/stock/11/delete/")
 
         else:
             print("invalid form", form.errors.as_data(), " ", form.non_field_errors())

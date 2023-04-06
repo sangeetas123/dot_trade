@@ -52,8 +52,8 @@ class StockAdmin(admin.ModelAdmin):
 
     @admin.action(description="Mark selected model as my deleted")
     def delete_model(self, request, client):
-        print("here once, next:", request)
-        if request.POST.get('next'):
+        print("here once, next:", request.POST)
+        if request.POST.get('post'):
             print("deleting model")
             super().delete_model(request, client)
         else:
