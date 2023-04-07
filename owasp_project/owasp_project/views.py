@@ -28,42 +28,13 @@ def handler403(request, exception=None):
 
 @otp_required
 def otpView(request):
-    print("in otp view ", request)
     if request.method == 'POST':
-        print("anon " , request.POST)
         form = OTPTokenForm(request.user, request, request.POST)
-        print("error form", form.errors.as_data())
-        print("request_session post", request.session.get('tmp_data'))
         stockId = request.session.get('tmp_data')
         if form.is_valid():
             #go back to deletion
-            next = request.POST.get('next', '/')
-            print("valid form, redirecting ", next)
             url = "/admin/dotrade/stock/%s/delete/" % stockId
             return redirect(url)
-
-        else:
-            print("invalid form", form.errors.as_data(), " ", form.non_field_errors())
-            field_errors = [ (field.label, field.errors) for field in form]
-            print("errors ", field_errors)
-
     else:
-        request.referrer = request.META.get('HTTP_REFERER', '/')
-        print("request_session ", request.session.get('tmp_data'))
         form = OTPTokenForm(request.user)
     return render(request, 'otp.html', {'form': form})
-
-'''
-def otpView(request):
-    if request.method == 'POST':
-        form = OTPTokenForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=password)
-            login(request, user)
-            return redirect('/dotrade/dashboard')
-    else:
-        form = OTPTokenForm()
-    return render(request, 'registration/signup.html', {'form': form}) '''

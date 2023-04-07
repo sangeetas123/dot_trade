@@ -27,9 +27,7 @@ from django.contrib.auth.models import User
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from django_otp.plugins.otp_totp.admin import TOTPDeviceAdmin
 
-from django_otp.decorators import otp_required
-from django_otp.forms import OTPTokenForm
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 
 from . import views
 from .views import login_wrapper
@@ -40,56 +38,27 @@ class OTPAdmin(OTPAdminSite):
 class StockAdmin(admin.ModelAdmin):
     list_display = ["name"]
     ordering = ["name"]
-    actions = ["delete_selected", "delete_model"]
+    actions = ["delete_selected"]
 
-    @admin.action(description="Mark selected stories as my deleted")
-    @otp_required
+    @admin.action(description="Mark selected stocks to delete")
     def delete_selected(self, request, client):
-        if request.user.is_verified():
-            print("delete_selected")
-            pass
-            #super().delete_model(request, client)
-
-    @admin.action(description="Mark selected model as my deleted")
-    def delete_model(self, request, client):
-        print("here once, next:", request.POST)
         if request.POST.get('post'):
-            print("deleting model")
             super().delete_model(request, client)
+            request.session.pop('tmp_data')
         else:
             request.POST.next = request.path
-            print("here after, next:", request.POST.get('_selected_action'))
-            request.session['tmp_data'] = 12
+            request.session['tmp_data'] = request.POST.get('_selected_action')
             return redirect("/verifyOtp", request)
-        '''
-        print(request.user)
-        if request.user.is_verified():
-            print("delete_model")
-            redirect(OTPView)
-            super().delete_model(request, client) '''
 
-    @admin.action(description="Mark selected queryset as dsfd")
-    # @otp_required
-    def delete_queryset(self, request, queryset):
-        if request.user.is_verified():
-            print("delete_queryset")
-            pass
-            #queryset.delete()
-
-'''
-    @admin.action(description="Mark selected stories as dsfd")
-    #@otp_required
-    def delete_queryset(self, request, queryset):
-        #if request.user.is_verified():
-            queryset.delete()
-
-    @admin.action(description="Mark selected stories as deleted")
-    #@otp_required
+    @admin.action(description="Mark selected models to delete")
     def delete_model(self, request, client):
-        #if request.user.is_verified():
+        if request.POST.get('post'):
             super().delete_model(request, client)
-'''
-
+            request.session.pop('tmp_data')
+        else:
+            request.POST.next = request.path
+            request.session['tmp_data'] = request.POST.get('_selected_action')
+            return redirect("/verifyOtp", request)
 
 
 admin_site = OTPAdmin(name='OTPAdmin')
