@@ -63,9 +63,10 @@ class StockAdmin(admin.ModelAdmin):
 
 admin_site = OTPAdmin(name='OTPAdmin')
 admin_site.register(User)
-admin_site.register(apps.get_model('dotrade', 'Stock'))
+#admin_site.register(apps.get_model('dotrade', 'Stock'))
 admin_site.register(TOTPDevice, TOTPDeviceAdmin)
-#admin_site.register(apps.get_model('dotrade', 'Stock'), StockAdmin)
+admin_site.register(apps.get_model('dotrade', 'Stock'), StockAdmin)
+
 admin_site.login = login_wrapper(admin_site.login)  # rate limit
 
 handler403 = views.handler403

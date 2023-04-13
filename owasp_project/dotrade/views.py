@@ -8,9 +8,9 @@ from .models import PurchasedStock
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
 
 from django.views.decorators.cache import cache_control
+from .forms import UserCreationForm
 
 def index(request):
     return render(request, 'dotrade/index.html')
