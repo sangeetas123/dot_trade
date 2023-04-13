@@ -10,10 +10,13 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 
+from django.views.decorators.cache import cache_control
+
 def index(request):
     return render(request, 'dotrade/index.html')
 
 @login_required(login_url='/dotrade/accounts/login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def dashboard(request):
     try:
         userPurchasedStocks = get_list_or_404(PurchasedStock, userId=request.user.id)
@@ -21,13 +24,6 @@ def dashboard(request):
         return render(request, 'dotrade/dashboard.html', context)
     except Http404:
         return render(request, 'dotrade/nothing.html')
-
-def loginView(request):
-    username = request.POST['username']
-    password = request.POST['password']
-    user = authenticate(request, username=username, password=password)
-    if user is not None:
-        login(request, user)
 
 def logout_view(request):
     logout(request)

@@ -42,6 +42,9 @@ INSTALLED_APPS = [
     # 2FA
     'django_otp',
     'django_otp.plugins.otp_totp',
+
+    #HTTPS
+    "sslserver",
 ]
 
 MIDDLEWARE = [
@@ -138,7 +141,9 @@ EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 EMAIL_FILE_PATH = BASE_DIR / "sent_emails"
 
 # Sessions
-SESSION_COOKIE_AGE = 600
-SESSION_COOKIE_SAMESITE = 'Strict'
 SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
-#SESSION_COOKIE_NAME = "__Host-Session"
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = 'Strict'
+SESSION_COOKIE_NAME = '__Host-Session'
+
+#SESSION_COOKIE_AGE = 30

@@ -63,21 +63,16 @@ class StockAdmin(admin.ModelAdmin):
 
 admin_site = OTPAdmin(name='OTPAdmin')
 admin_site.register(User)
-#admin_site.register(apps.get_model('dotrade', 'Stock'))
+admin_site.register(apps.get_model('dotrade', 'Stock'))
 admin_site.register(TOTPDevice, TOTPDeviceAdmin)
-admin_site.register(apps.get_model('dotrade', 'Stock'), StockAdmin)
+#admin_site.register(apps.get_model('dotrade', 'Stock'), StockAdmin)
 admin_site.login = login_wrapper(admin_site.login)  # rate limit
 
 handler403 = views.handler403
-
-
-
-
 
 urlpatterns = [
     path('admin/', admin_site.urls),
     path('dotrade/', include('dotrade.urls')),
     path('verifyOtp/', views.otpView),
-    #path('admin/auth/user/{user_id}/delete', views.deleteUserView),
     path('', RedirectView.as_view(url='dotrade/', permanent=True)),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
