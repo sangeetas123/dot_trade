@@ -8,12 +8,15 @@ from .models import PurchasedStock
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+
+from django.views.decorators.cache import cache_control
 from .forms import UserCreationForm
 
 def index(request):
     return render(request, 'dotrade/index.html')
 
 @login_required(login_url='/dotrade/accounts/login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def dashboard(request):
     try:
         userPurchasedStocks = get_list_or_404(PurchasedStock, userId=request.user.id)
