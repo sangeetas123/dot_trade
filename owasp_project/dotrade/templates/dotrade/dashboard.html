@@ -47,6 +47,11 @@
 </head>
 <body>
 <p><a href = "{% url 'customlogout' %}">Log out</a></p>
+{% if user.is_superuser %}
+  <div class="section">
+    <p><a href = "{% url 'admin:login' %}">Admin Portal</a></p>
+  </div>
+{% endif %}
 <div class="header">
   <h2>Here are your holdings!</h2>
 </div>
