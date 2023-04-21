@@ -12,6 +12,8 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import cache_control
 from .forms import UserCreationForm
 
+from django.contrib.auth.models import Group
+
 def index(request):
     return render(request, 'dotrade/index.html')
 
@@ -38,6 +40,11 @@ def signupView(request):
             password = form.cleaned_data.get('password1')
             user = authenticate(username=username, password=password)
             login(request, user)
+
+            # add the user to the group
+            group = Group.objects.get(name='Customers')
+            user.groups.add(group)
+
             return redirect('/dotrade/dashboard')
     else:
         form = UserCreationForm()
