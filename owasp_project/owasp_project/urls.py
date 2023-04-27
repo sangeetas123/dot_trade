@@ -72,7 +72,7 @@ admin_site.login = login_wrapper(admin_site.login)  # rate limit
 handler403 = views.handler403
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', admin_site.urls),
     path('dotrade/', include('dotrade.urls')),
     path('verifyOtp/', views.otpView),
     path('', RedirectView.as_view(url='dotrade/', permanent=True)),

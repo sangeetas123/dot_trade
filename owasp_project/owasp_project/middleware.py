@@ -5,6 +5,7 @@ class AdminSiteMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if request.path.startswith('/admin/') and request.user.is_authenticated and not request.user.is_superuser:
+        if request.path.startswith('/admin/') and request.user.is_authenticated \
+                and not request.user.is_superuser:
             return redirect('/dotrade/dashboard')
         return self.get_response(request)
