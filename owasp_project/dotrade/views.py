@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 
 from django.shortcuts import get_list_or_404
@@ -15,6 +15,8 @@ from .forms import UserCreationForm, CommentForm
 from .decorators import group_required
 
 from django.contrib.auth.models import Group
+
+from django.db import connection
 
 def index(request):
     return render(request, 'dotrade/index.html')
@@ -82,3 +84,9 @@ def commentHistory(request):
         return render(request, 'dotrade/comment_history.html', context)
     except Http404:
         return render(request, 'dotrade/nothing.html')
+
+def comment_detail(request, comment_id):
+    query = f"SELECT * FROM dotrade_comment WHERE id = '{comment_id}'"
+    comments = Comment.objects.raw(query)
+
+    return render(request, 'dotrade/comment_detail.html', {'comments': comments})

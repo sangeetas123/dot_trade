@@ -16,5 +16,6 @@ urlpatterns = [
     path('analytics/', views.analytics, name='analytics'),
     path('feedback/', views.commentView, name='comment'),
     path('comment_history/', views.commentHistory, name='commentHistory'),
+    path('comment_detail/<comment_id>', views.comment_detail, name='comment_detail'),
 
 ]

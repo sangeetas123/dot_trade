@@ -2,6 +2,8 @@ from django.core.validators import MaxLengthValidator
 from django.db import models
 
 from django.contrib.auth.models import User
+from django.urls import reverse
+
 
 class Stock(models.Model):
     name = models.CharField(max_length=200)
@@ -35,6 +37,10 @@ class PurchasedStock(models.Model):
 class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     comment = models.TextField(validators=[MaxLengthValidator(10)]) # At the ORM level
+    created = models.DateTimeField(auto_now_add=True)
+
+    def get_absolute_url(self):
+        return reverse('comment_detail', args=[str(self.id)])
 
     def __str__(self):
         return self.comment
