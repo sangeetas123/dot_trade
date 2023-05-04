@@ -1,3 +1,4 @@
+from django.db.models.expressions import RawSQL
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 
@@ -77,7 +78,7 @@ def commentView(request):
         'form': form,
     })
 
-def commentHistory(request):
+def comment_history(request):
     try:
         comments = get_list_or_404(Comment, user=request.user)
         context = {'comments': comments}
@@ -86,7 +87,10 @@ def commentHistory(request):
         return render(request, 'dotrade/nothing.html')
 
 def comment_detail(request, comment_id):
-    query = f"SELECT * FROM dotrade_comment WHERE id = '{comment_id}'"
-    comments = Comment.objects.raw(query)
+    #query = f"SELECT * FROM dotrade_comment WHERE id = '{comment_id}'"
+    query = f"SELECT * FROM dotrade_comment WHERE id = %s"
+
+    comments = Comment.objects.raw(query, [comment_id])
+    #comment = get_object_or_404(Comment, pk=comment_id)
 
     return render(request, 'dotrade/comment_detail.html', {'comments': comments})
