@@ -1,12 +1,15 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from django.core.validators import MaxLengthValidator
+from django.core.validators import MaxLengthValidator, RegexValidator
 
 from .models import Comment
 
 class CommentForm(forms.ModelForm):
-    comment = forms.CharField(validators=[MaxLengthValidator(10)])
+    comment = forms.CharField(validators=[MaxLengthValidator(10),
+                                          RegexValidator(r'^[a-zA-Z]+$',
+                                                          'Only alphabetical characters are allowed.')
+                                          ])
     class Meta:
         model = Comment
         fields = ['comment']

@@ -1,4 +1,4 @@
-from django.core.validators import MaxLengthValidator
+from django.core.validators import MaxLengthValidator, RegexValidator
 from django.db import models
 
 from django.contrib.auth.models import User
@@ -36,7 +36,9 @@ class PurchasedStock(models.Model):
 
 class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    comment = models.TextField(validators=[MaxLengthValidator(10)]) # At the ORM level
+    comment = models.TextField(validators=[MaxLengthValidator(10),
+                                           RegexValidator(r'^[a-zA-Z]+$',
+                                                          'Only alphabetical characters are allowed.')]) # At the ORM level
     created = models.DateTimeField(auto_now_add=True)
 
     def get_absolute_url(self):
