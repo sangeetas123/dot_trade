@@ -14,5 +14,7 @@ urlpatterns = [
         auth_views.PasswordResetDoneView.as_view(template_name='registration/reset_complete.html'),
         name='password_reset_complete'),
     path('analytics/', views.analytics, name='analytics'),
+    path('feedback/', views.commentView, name='comment'),
+    path('comment_history/', views.commentHistory, name='commentHistory'),
 
 ]
