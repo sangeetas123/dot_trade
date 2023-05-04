@@ -64,7 +64,9 @@
   </tr>
 
     {%for c in comments%}
-    <div class="comment">{{ c.comment |safe }}</div>
+    <tr>
+      <td style="text-align:center">{{c.comment |safe}}</td>
+    </tr>
     {%endfor%}
 </table>
 

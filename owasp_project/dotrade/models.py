@@ -1,3 +1,4 @@
+from django.core.validators import MaxLengthValidator
 from django.db import models
 
 from django.contrib.auth.models import User
@@ -33,7 +34,7 @@ class PurchasedStock(models.Model):
 
 class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    comment = models.TextField()
+    comment = models.TextField(validators=[MaxLengthValidator(10)]) # At the ORM level
 
     def __str__(self):
         return self.comment

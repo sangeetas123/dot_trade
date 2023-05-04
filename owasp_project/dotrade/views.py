@@ -58,7 +58,6 @@ def signupView(request):
     return render(request, 'registration/signup.html', {'form': form})
 
 def commentView(request):
-    #user = User.objects.get(id=request.user)
     comments = Comment.objects.filter(user=request.user)
 
     if request.method == 'POST':
