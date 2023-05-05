@@ -63,14 +63,12 @@
     <th>Date</th>
       <th>Comment</th>
   </tr>
-  {%for c in comments%}
     <tr>
-      <td style="text-align:center">{{c.created}}</td>
-      <td style="text-align:center">{{c.comment}}</td>
+      <td style="text-align:center">{{comment.created}}</td>
+      <td style="text-align:center">{{comment.comment}}</td>
     </tr>
-    {%endfor%}
-</table>
 
+</table>
 </body>
 </html>
 

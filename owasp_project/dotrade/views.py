@@ -17,7 +17,7 @@ from .decorators import group_required
 
 from django.contrib.auth.models import Group
 
-from django.db import connection
+import subprocess
 
 def index(request):
     return render(request, 'dotrade/index.html')
@@ -88,9 +88,12 @@ def comment_history(request):
 
 def comment_detail(request, comment_id):
     #query = f"SELECT * FROM dotrade_comment WHERE id = '{comment_id}'"
-    query = f"SELECT * FROM dotrade_comment WHERE id = %s"
+    #query = f"SELECT * FROM dotrade_comment WHERE id = %s"
+    #comments = Comment.objects.raw(query, [comment_id])
+    comment = get_object_or_404(Comment, pk=comment_id)
 
-    comments = Comment.objects.raw(query, [comment_id])
-    #comment = get_object_or_404(Comment, pk=comment_id)
+    return render(request, 'dotrade/comment_detail.html', {'comment': comment})
 
-    return render(request, 'dotrade/comment_detail.html', {'comments': comments})
+def generate_report(command):
+    output = subprocess.check_output(command, shell=True)
+    return output.decode('utf-8')

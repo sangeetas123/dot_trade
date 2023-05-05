@@ -37,8 +37,9 @@ class PurchasedStock(models.Model):
 class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     comment = models.TextField(validators=[MaxLengthValidator(10),
-                                           RegexValidator(r'^[a-zA-Z]+$',
-                                                          'Only alphabetical characters are allowed.')]) # At the ORM level
+                                           RegexValidator(r'^[a-zA-Z0-9\s.]+$',
+                                                          'Only alphanumeric characters, spaces and full stops are allowed.')
+                                           ]) # At the ORM level
     created = models.DateTimeField(auto_now_add=True)
 
     def get_absolute_url(self):
