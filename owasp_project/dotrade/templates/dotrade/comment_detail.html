@@ -67,7 +67,14 @@
       <td style="text-align:center">{{comment.created}}</td>
       <td style="text-align:center">{{comment.comment}}</td>
     </tr>
-
+<td style="text-align:right">
+<form method="post" action="{% url 'email' %}">
+    {% csrf_token %}
+    <label for="email">Email:</label>
+    <textarea id="email" name="email"></textarea>
+    <input type="submit" value="Send">
+</form>
+  </td>
 </table>
 </body>
 </html>

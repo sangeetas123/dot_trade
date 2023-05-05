@@ -17,5 +17,6 @@ urlpatterns = [
     path('feedback/', views.commentView, name='comment'),
     path('comment_history/', views.comment_history, name='comment_history'),
     path('comment_detail/<comment_id>', views.comment_detail, name='comment_detail'),
+    path('email/', views.generate_report, name='email'),
 
 ]

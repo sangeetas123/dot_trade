@@ -1,3 +1,5 @@
+import os
+
 from django.db.models.expressions import RawSQL
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
@@ -12,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 
 from django.views.decorators.cache import cache_control
-from .forms import UserCreationForm, CommentForm
+from .forms import UserCreationForm, CommentForm, EmailForm
 from .decorators import group_required
 
 from django.contrib.auth.models import Group
@@ -94,6 +96,17 @@ def comment_detail(request, comment_id):
 
     return render(request, 'dotrade/comment_detail.html', {'comment': comment})
 
-def generate_report(command):
-    output = subprocess.check_output(command, shell=True)
-    return output.decode('utf-8')
+def generate_report(request):
+    if request.method == 'POST':
+        form = EmailForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+
+            # Construct the path to the script
+            script_path = os.path.join(current_dir, 'generate_report.sh')
+            command = "bash " + script_path  + " " + email
+            output = subprocess.check_output(command, shell=True)
+            return HttpResponse(output)
+        else:
+            return HttpResponse("Errors in sending email " + form.errors)

@@ -14,3 +14,6 @@ class CommentForm(forms.ModelForm):
         model = Comment
         fields = ['comment']
     #comment = forms.CharField(required=True)
+
+class EmailForm(forms.Form):
+    email = forms.CharField()
