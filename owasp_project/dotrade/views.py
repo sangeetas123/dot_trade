@@ -102,8 +102,6 @@ def generate_report(request):
         if form.is_valid():
             email = form.cleaned_data['email']
             sanitized_email = ''.join(c for c in email if c.isalnum() or c == '@' or c == '.')
-            print("EMAIL ", sanitized_email)
-
 
             current_dir = os.path.dirname(os.path.abspath(__file__))
 
