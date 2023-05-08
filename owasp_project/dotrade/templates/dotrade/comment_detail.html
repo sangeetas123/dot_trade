@@ -70,12 +70,23 @@
 <td style="text-align:right">
 <form method="post" action="{% url 'email' %}">
     {% csrf_token %}
-    <label for="email">Email:</label>
-    <textarea id="email" name="email"></textarea>
+    {{ form.as_p }}
+    {% if form.errors %}
+        <ul>
+        {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+            <li>{{ field }}: {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+        </ul>
+    {% endif %}
     <input type="submit" value="Send">
 </form>
   </td>
 </table>
 </body>
 </html>
+
+
+
 

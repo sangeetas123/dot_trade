@@ -93,24 +93,29 @@ def comment_detail(request, comment_id):
     #query = f"SELECT * FROM dotrade_comment WHERE id = %s"
     #comments = Comment.objects.raw(query, [comment_id])
     comment = get_object_or_404(Comment, pk=comment_id)
-
-    return render(request, 'dotrade/comment_detail.html', {'comment': comment})
-
-def generate_report(request):
     if request.method == 'POST':
         form = EmailForm(request.POST)
         if form.is_valid():
-            email = form.cleaned_data['email']
-            sanitized_email = ''.join(c for c in email if c.isalnum() or c == '@' or c == '.')
+            return generate_report(request)
+    else:
+        form = EmailForm()
 
-            current_dir = os.path.dirname(os.path.abspath(__file__))
+    return render(request, 'dotrade/comment_detail.html', {'comment': comment, 'form':form})
 
-            # Construct the path to the script
-            script_path = os.path.join(current_dir, 'generate_report.sh')
-            #command = "bash " + script_path  + " " + email
-            #output = subprocess.check_output(command, shell=True)
-            command = ["bash", script_path, sanitized_email]
-            result = subprocess.run(command, capture_output=True)
-            return HttpResponse(result.stdout)
-        else:
-            return HttpResponse("Errors in sending email " + form.errors)
+def generate_report(request):
+    form = EmailForm(request.POST)
+    if form.is_valid():
+        email = form.cleaned_data['email']
+        #sanitized_email = ''.join(c for c in email if c.isalnum() or c == '@' or c == '.')
+
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # Construct the path to the script
+        script_path = os.path.join(current_dir, 'generate_report.sh')
+        command = "bash " + script_path  + " " + email
+        output = subprocess.check_output(command, shell=True)
+        #command = ["bash", script_path, sanitized_email]
+        #result = subprocess.run(command, capture_output=True)
+        return HttpResponse(output)
+    else:
+        return HttpResponse("Errors in sending email")
