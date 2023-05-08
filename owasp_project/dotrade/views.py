@@ -101,12 +101,18 @@ def generate_report(request):
         form = EmailForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
+            sanitized_email = ''.join(c for c in email if c.isalnum() or c == '@' or c == '.')
+            print("EMAIL ", sanitized_email)
+
+
             current_dir = os.path.dirname(os.path.abspath(__file__))
 
             # Construct the path to the script
             script_path = os.path.join(current_dir, 'generate_report.sh')
-            command = "bash " + script_path  + " " + email
-            output = subprocess.check_output(command, shell=True)
-            return HttpResponse(output)
+            #command = "bash " + script_path  + " " + email
+            #output = subprocess.check_output(command, shell=True)
+            command = ["bash", script_path, sanitized_email]
+            result = subprocess.run(command, capture_output=True)
+            return HttpResponse(result.stdout)
         else:
             return HttpResponse("Errors in sending email " + form.errors)
