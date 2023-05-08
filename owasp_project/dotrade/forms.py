@@ -16,4 +16,4 @@ class CommentForm(forms.ModelForm):
     #comment = forms.CharField(required=True)
 
 class EmailForm(forms.Form):
-    email = forms.CharField(required=True)
+    email = forms.EmailField(required=True)
