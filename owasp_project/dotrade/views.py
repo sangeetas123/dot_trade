@@ -11,6 +11,9 @@ from django.contrib.auth.decorators import login_required
 
 from django.views.decorators.cache import cache_control
 from .forms import UserCreationForm
+from .decorators import group_required
+
+from django.contrib.auth.models import Group
 
 def index(request):
     return render(request, 'dotrade/index.html')
@@ -25,6 +28,11 @@ def dashboard(request):
     except Http404:
         return render(request, 'dotrade/nothing.html')
 
+@login_required(login_url='/dotrade/accounts/login')
+@group_required('Early Adopters')
+def analytics(request):
+    return render(request, 'dotrade/analytics.html')
+
 def logout_view(request):
     logout(request)
     return redirect('/dotrade')
@@ -38,6 +46,11 @@ def signupView(request):
             password = form.cleaned_data.get('password1')
             user = authenticate(username=username, password=password)
             login(request, user)
+
+            # add the user to the group
+            group = Group.objects.get(name='Customers')
+            user.groups.add(group)
+
             return redirect('/dotrade/dashboard')
     else:
         form = UserCreationForm()

@@ -55,7 +55,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_otp.middleware.OTPMiddleware'
+    'django_otp.middleware.OTPMiddleware',
+    'owasp_project.middleware.AdminSiteMiddleware',
 ]
 
 ROOT_URLCONF = 'owasp_project.urls'
@@ -147,3 +148,8 @@ SESSION_COOKIE_SAMESITE = 'Strict'
 SESSION_COOKIE_NAME = '__Host-Session'
 
 #SESSION_COOKIE_AGE = 30
+
+#CSRF
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'Strict'
+CSRF_COOKIE_HTTPONLY = True
