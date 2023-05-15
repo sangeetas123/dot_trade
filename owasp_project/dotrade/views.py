@@ -21,6 +21,7 @@ from django.contrib.auth.models import Group
 
 import subprocess
 
+
 def index(request):
     return render(request, 'dotrade/index.html')
 
