@@ -7,7 +7,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_list_or_404
 from django.http import Http404
 
-from .models import PurchasedStock, Comment
+from .models import PurchasedStock, Comment, Profile
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -20,6 +20,7 @@ from .decorators import group_required
 from django.contrib.auth.models import Group
 
 import subprocess
+from cryptography.fernet import Fernet
 
 
 def index(request):
@@ -31,7 +32,21 @@ def dashboard(request):
     try:
         userPurchasedStocks = get_list_or_404(PurchasedStock, userId=request.user.id)
         context = {'stocks': userPurchasedStocks}
-        return render(request, 'dotrade/dashboard.html', context)
+        response = render(request, 'dotrade/dashboard.html', context)
+        print("COOOKIEEEE")
+
+        key = Fernet.generate_key()
+        f = Fernet(key)
+        encrypted_data = f.encrypt(bytes(request.user.email, 'utf-8'))
+        print("ENCRUPT ", encrypted_data)
+        response.set_signed_cookie('my_cookie', encrypted_data, salt='my_salt')
+        print("Decrypting cookie ", request.COOKIES.get('my_cookie'))
+        cookie_value = request.get_signed_cookie('my_cookie', default=None, salt='my_salt')
+        if cookie_value is not None:
+            #my_cookie_value = decrypt(cookie_value)
+            print("Cookie value ", f.decrypt(encrypted_data))
+
+        return response
     except Http404:
         return render(request, 'dotrade/nothing.html')
 
@@ -120,3 +135,18 @@ def generate_report(request):
         return HttpResponse(result.stdout)
     else:
         return HttpResponse("Errors in sending email")
+
+def store_cookie():
+    response = redirect('/login/')
+    response.set_cookie('my_cookie', 'cookie_value')
+    return response
+
+def user_profile(request):
+    try:
+        user_profile = get_object_or_404(Profile, userId=request.user.id)
+        context = {'profile': user_profile}
+        print("PROFILEEEE", user_profile)
+        response = render(request, 'dotrade/profile.html', context)
+        return response
+    except Http404:
+        return render(request, 'dotrade/nothing.html')
