@@ -172,9 +172,7 @@ def edit_profile_view(request):
                 cleaned_credit_card = None
             print("PROFILES ", cleaned_first_name, " ", cleaned_last_name, " ",
                   cleaned_credit_card, " ", cleaned_date_of_birth, " ", cleaned_save_payment_information)
-            #profile = Profile(userId=request.user, first_name=cleaned_first_name,
-            #                  last_name=cleaned_last_name, date_of_birth=cleaned_date_of_birth,
-            #                  credit_card=cleaned_credit_card, save_payment_information=cleaned_save_payment_information)
+
             Profile.objects.update_or_create(userId=request.user,
                                              defaults={'first_name': cleaned_first_name,
                                                        'last_name' : cleaned_last_name,
