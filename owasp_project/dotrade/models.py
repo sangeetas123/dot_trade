@@ -79,8 +79,12 @@ class EncryptedField(models.BinaryField):
 
 class Profile(models.Model):
     userId = models.ForeignKey(User, on_delete=models.CASCADE)
-    first_name = models.CharField(max_length=20, validators=[RegexValidator(r'^[A-Za-z]+$', 'Only alphabets allowed')])
-    last_name = models.CharField(max_length=20, validators=[RegexValidator(r'^[A-Za-z]+$', 'Only alphabets allowed')])
+    first_name = models.CharField(max_length=20,
+                                  validators=[RegexValidator(
+                                      r'^[A-Za-z]+$', 'Only alphabets allowed')])
+    last_name = models.CharField(max_length=20,
+                                 validators=[RegexValidator(
+                                     r'^[A-Za-z]+$', 'Only alphabets allowed')])
     credit_card = EncryptedField()
     date_of_birth = models.DateField()
     created = models.DateTimeField(auto_now_add=True)

@@ -128,7 +128,8 @@ def generate_report(request):
 def store_cookie(request, response):
     f = Fernet(b'T3hzrNTA9mMrkL1-vu6IUEz3skymjBU1yxE_z-2oJZo=')
     signer = Signer(key='SECRET_KEY')
-    signed_cookie_value = request.get_signed_cookie('my_cookie', salt='my_salt', default=None)
+    signed_cookie_value = request.get_signed_cookie('my_cookie',
+                                                    salt='my_salt', default=None)
     if signed_cookie_value is not None:
         # Create a Signer instance
 
@@ -139,12 +140,16 @@ def store_cookie(request, response):
         encrypted_data = f.encrypt(bytes(request.user.email, 'utf-8'))
         signed_data = signer.sign(encrypted_data.decode())
         expiry_time = datetime.now() + timedelta(seconds=30)
-        response.set_signed_cookie('my_cookie', signed_data, salt='my_salt', expires=expiry_time)
+        response.set_signed_cookie('my_cookie', signed_data,
+                                   salt='my_salt', expires=expiry_time)
 
     return response
 
+@login_required(login_url='/dotrade/accounts/login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def user_profile(request):
     try:
+        print("userid ", request.user.id)
         user_profile = get_object_or_404(Profile, userId=request.user.id)
         context = {'profile': user_profile}
         response = render(request, 'dotrade/profile.html', context)
