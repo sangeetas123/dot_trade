@@ -9,6 +9,8 @@ from django.db.models import Value
 
 from cryptography.fernet import Fernet
 
+import binascii
+
 class Stock(models.Model):
     name = models.CharField(max_length=200)
     symbol = models.CharField(max_length=3)
@@ -62,10 +64,16 @@ class EncryptedField(models.BinaryField):
             return value
         return self.fernet.decrypt(value).decode('ascii')
 
+    '''
     def to_python(self, value):
         if value is None:
             return value
-        return self.fernet.decrypt(value)
+        try:
+            print("value ", value)
+            return self.fernet.decrypt(value)
+        except Exception as e:
+            print("Exception ", e)
+    '''
 
     def get_db_prep_value(self, value, connection, prepared=False):
         if value is None:
@@ -85,9 +93,10 @@ class Profile(models.Model):
     last_name = models.CharField(max_length=20,
                                  validators=[RegexValidator(
                                      r'^[A-Za-z]+$', 'Only alphabets allowed')])
-    credit_card = EncryptedField()
+    credit_card = EncryptedField(editable=True, null=True)
     date_of_birth = models.DateField()
     created = models.DateTimeField(auto_now_add=True)
+    save_payment_information = models.BooleanField(default=False)
 
     def __str__(self):
         return str(Concat('first_name', Value(' '), 'last_name'))

@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 
 from django.views.decorators.cache import cache_control
-from .forms import UserCreationForm, CommentForm, EmailForm
+from .forms import UserCreationForm, CommentForm, EmailForm, ProfileForm
 from .decorators import group_required
 
 from django.contrib.auth.models import Group
@@ -155,4 +155,37 @@ def user_profile(request):
         response = render(request, 'dotrade/profile.html', context)
         return response
     except Http404:
-        return render(request, 'dotrade/nothing.html')
+        return render(request, 'dotrade/profile.html')
+
+
+def edit_profile_view(request):
+    if request.method == 'POST':
+        form = ProfileForm(request.POST)
+        if form.is_valid():
+            cleaned_first_name = form.cleaned_data['first_name']
+            cleaned_last_name = form.cleaned_data['last_name']
+            cleaned_date_of_birth = form.cleaned_data['date_of_birth']
+            cleaned_credit_card = form.cleaned_data['credit_card']
+            cleaned_save_payment_information = form.cleaned_data['save_payment_information']
+
+            if not cleaned_save_payment_information:
+                cleaned_credit_card = None
+            print("PROFILES ", cleaned_first_name, " ", cleaned_last_name, " ",
+                  cleaned_credit_card, " ", cleaned_date_of_birth, " ", cleaned_save_payment_information)
+            #profile = Profile(userId=request.user, first_name=cleaned_first_name,
+            #                  last_name=cleaned_last_name, date_of_birth=cleaned_date_of_birth,
+            #                  credit_card=cleaned_credit_card, save_payment_information=cleaned_save_payment_information)
+            Profile.objects.update_or_create(userId=request.user,
+                                             defaults={'first_name': cleaned_first_name,
+                                                       'last_name' : cleaned_last_name,
+                                                       'date_of_birth': cleaned_date_of_birth,
+                                                       'credit_card':cleaned_credit_card,
+                                                       'save_payment_information':cleaned_save_payment_information
+            },)
+            return redirect('profile')
+        else:
+            print("Errors: ", form.errors)
+    else:
+        form = ProfileForm()
+
+    return render(request, 'dotrade/getprofile.html', {'form': form})
