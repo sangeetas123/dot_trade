@@ -57,6 +57,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_otp.middleware.OTPMiddleware',
     'owasp_project.middleware.AdminSiteMiddleware',
+    'owasp_project.middleware.HttpsRedirectMiddleware',
 ]
 
 ROOT_URLCONF = 'owasp_project.urls'
@@ -153,3 +154,8 @@ SESSION_COOKIE_NAME = '__Host-Session'
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'Strict'
 CSRF_COOKIE_HTTPONLY = True
+
+#Use HTTPS
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
+SECURE_HSTS_SECONDS = 300  # 5 minutes
