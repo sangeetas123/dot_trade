@@ -1,4 +1,5 @@
 from django.core.validators import MaxLengthValidator, RegexValidator, MinLengthValidator
+
 from django.db import models
 
 from django.contrib.auth.models import User
@@ -100,7 +101,6 @@ class Profile(models.Model):
 
     def __str__(self):
         return str(Concat('first_name', Value(' '), 'last_name'))
-
 
 
 

@@ -14,7 +14,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 
 from django.views.decorators.cache import cache_control
+
 from .forms import UserCreationForm, CommentForm, EmailForm, ProfileForm
+
 from .decorators import group_required
 
 from django.contrib.auth.models import Group
@@ -23,6 +25,7 @@ import subprocess
 from cryptography.fernet import Fernet
 from datetime import datetime, timedelta
 from django.core.signing import Signer
+
 
 
 def index(request):
