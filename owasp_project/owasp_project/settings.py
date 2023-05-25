@@ -185,4 +185,11 @@ LOGGING = {
         'handlers': ['console'],
         'level': 'DEBUG',  # Set the default log level for the root logger
     },
+    'loggers': {
+        'django.db.backends': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
 }
