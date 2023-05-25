@@ -173,9 +173,9 @@ LOGGING = {
         'level': 'DEBUG',  # Set the default log level for the root logger
     },
     'loggers': {
-        'myapp': {
+        'dotrade': {
             'handlers': ['console'],
-            'level': 'INFO',  # Set the log level for the 'myapp' logger
+            'level': 'INFO',  # Set the log level for the 'dotrade' logger
         },
     },
 }
