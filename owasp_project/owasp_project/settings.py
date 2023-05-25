@@ -57,7 +57,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_otp.middleware.OTPMiddleware',
     'owasp_project.middleware.AdminSiteMiddleware',
-    'owasp_project.middleware.HttpsRedirectMiddleware',
 ]
 
 ROOT_URLCONF = 'owasp_project.urls'
