@@ -140,9 +140,9 @@ def store_cookie(request, response):
         # Create a Signer instance
 
         encrypted_cookie_value = signer.unsign(signed_cookie_value)
-        logger.debug("Cookie value ", f.decrypt(encrypted_cookie_value.encode()))
+        logger.debug("[sensitive] Cookie value %s", f.decrypt(encrypted_cookie_value.encode()))
     else:
-        logger.debug("No cookie by that name, it might have expired")
+        logger.debug("[sensitive] No cookie by that name, it might have expired")
         encrypted_data = f.encrypt(bytes(request.user.email, 'utf-8'))
         signed_data = signer.sign(encrypted_data.decode())
         expiry_time = datetime.now() + timedelta(seconds=30)

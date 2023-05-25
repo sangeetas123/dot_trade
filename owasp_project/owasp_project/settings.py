@@ -163,19 +163,19 @@ SECURE_HSTS_SECONDS = 31536000  # 1 year
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'filters': {
+        'sensitive_data': {
+            '()': 'owasp_project.filters.SensitiveDataFilter',
+        },
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
+            'filters': ['sensitive_data'],
         },
     },
     'root': {
         'handlers': ['console'],
         'level': 'DEBUG',  # Set the default log level for the root logger
-    },
-    'loggers': {
-        'dotrade': {
-            'handlers': ['console'],
-            'level': 'INFO',  # Set the log level for the 'dotrade' logger
-        },
     },
 }
