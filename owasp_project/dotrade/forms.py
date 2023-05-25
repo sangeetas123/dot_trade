@@ -1,17 +1,19 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.core.validators import MaxLengthValidator, RegexValidator
 
-class UserCreationForm(UserCreationForm):
-    email = forms.EmailField(required=True)
+from .models import Comment
 
+class CommentForm(forms.ModelForm):
+    comment = forms.CharField(validators=[MaxLengthValidator(10),
+                                          RegexValidator(r'^[a-zA-Z0-9\s.]+$',
+    'Only alphanumeric characters, spaces and full stops are allowed.')
+                                          ])
     class Meta:
-        model = User
-        fields = ("username", "email", "password1", "password2")
+        model = Comment
+        fields = ['comment']
+    #comment = forms.CharField(required=True)
 
-    def save(self, commit=True):
-        user = super(UserCreationForm, self).save(commit=False)
-        user.email = self.cleaned_data["email"]
-        if commit:
-            user.save()
-        return user
+class EmailForm(forms.Form):
+    email = forms.EmailField(required=True)

@@ -55,26 +55,17 @@
 <p><a href = "{% url 'analytics' %}">Analytics</a></p>
 <p><a href = "{% url 'comment' %}">Feedback</a></p>
 <div class="header">
-  <h2>Here are your holdings!</h2>
-
+  <h2>Comment History</h2>
 </div>
 
 <table class="styled-table">
   <tr>
-    <th>Stock</th>
-    <th>Symbol</th>
-    <th>Purchased Price</th>
-    <th>Current Price</th>
-    <th>Quantity</th>
+    <th>Comments</th>
   </tr>
-
-    {%for s in stocks%}
+    {%for c in comments%}
     <tr>
-      <td style="text-align:center">{{s.stockId.name}}</td>
-      <td style="text-align:center">{{s.stockId.symbol}}</td>
-      <td style="text-align:center">{{s.purchasedPrice}}</td>
-      <td style="text-align:center">{{s.stockId.currentPrice}}</td>
-      <td style="text-align:center">{{s.quantity}}</td>
+      <td style="text-align:center">
+        <a href="{% url 'comment_detail' c.id %}">{{ c.comment| safe }}</a></td>
     </tr>
     {%endfor%}
 </table>

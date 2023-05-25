@@ -1,6 +1,9 @@
+from django.core.validators import MaxLengthValidator, RegexValidator
 from django.db import models
 
 from django.contrib.auth.models import User
+from django.urls import reverse
+
 
 class Stock(models.Model):
     name = models.CharField(max_length=200)
@@ -30,6 +33,20 @@ class PurchasedStock(models.Model):
 
     def __str__(self):
         return self.stockId.name
+
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.TextField(validators=[MaxLengthValidator(10),
+                                           RegexValidator(r'^[a-zA-Z0-9\s.]+$',
+                                                          'Only alphanumeric characters, spaces and full stops are allowed.')
+                                           ]) # At the ORM level
+    created = models.DateTimeField(auto_now_add=True)
+
+    def get_absolute_url(self):
+        return reverse('comment_detail', args=[str(self.id)])
+
+    def __str__(self):
+        return self.comment
 
 
 
