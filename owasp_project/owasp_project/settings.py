@@ -158,3 +158,24 @@ CSRF_COOKIE_HTTPONLY = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_REDIRECT = True
 SECURE_HSTS_SECONDS = 31536000  # 1 year
+
+#Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',  # Set the default log level for the root logger
+    },
+    'loggers': {
+        'myapp': {
+            'handlers': ['console'],
+            'level': 'INFO',  # Set the log level for the 'myapp' logger
+        },
+    },
+}

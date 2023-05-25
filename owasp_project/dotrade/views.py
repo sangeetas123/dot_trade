@@ -26,7 +26,9 @@ from cryptography.fernet import Fernet
 from datetime import datetime, timedelta
 from django.core.signing import Signer
 
+import logging
 
+logger = logging.getLogger('dotrade')
 
 def index(request):
     return render(request, 'dotrade/index.html')
@@ -38,6 +40,7 @@ def dashboard(request):
         userPurchasedStocks = get_list_or_404(PurchasedStock, userId=request.user.id)
         context = {'stocks': userPurchasedStocks}
         response = render(request, 'dotrade/dashboard.html', context)
+        logger.info('Loading the dashboard')
         return store_cookie(request, response)
     except Http404:
         return render(request, 'dotrade/nothing.html')
@@ -137,9 +140,9 @@ def store_cookie(request, response):
         # Create a Signer instance
 
         encrypted_cookie_value = signer.unsign(signed_cookie_value)
-        print("Cookie value ", f.decrypt(encrypted_cookie_value.encode()))
+        logger.debug("Cookie value ", f.decrypt(encrypted_cookie_value.encode()))
     else:
-        print("No cookie by that name, it might have expired")
+        logger.debug("No cookie by that name, it might have expired")
         encrypted_data = f.encrypt(bytes(request.user.email, 'utf-8'))
         signed_data = signer.sign(encrypted_data.decode())
         expiry_time = datetime.now() + timedelta(seconds=30)
