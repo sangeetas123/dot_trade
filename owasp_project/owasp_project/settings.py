@@ -168,10 +168,17 @@ LOGGING = {
             '()': 'owasp_project.filters.SensitiveDataFilter',
         },
     },
+    'formatters': {
+        'redacting_formatter': {
+            '()': 'owasp_project.filters.RedactingFormatter',
+            'format': '%(levelname)s %(message)s',
+        },
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'filters': ['sensitive_data'],
+            #'filters': ['sensitive_data'],
+            'formatter': 'redacting_formatter',
         },
     },
     'root': {
