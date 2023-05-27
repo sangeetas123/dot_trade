@@ -2,10 +2,20 @@ import hashlib
 import logging
 import re
 
+logger = logging.getLogger('dotrade')
+
 class SensitiveDataFilter(logging.Filter):
+    def __init__(self):
+        super().__init__()
+        email_regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b'
+        self.regex = re.compile(email_regex)
+
     def filter(self, record):
-        if 'sensitive' in record.msg:
-            return False  # Do not log sensitive messages
+        formatter = logging.Formatter()
+        log_message = formatter.format(record)
+        if self.regex.search(log_message):
+            logger.info("Filtering out sensitive log")
+            return False
         return True
 
 class RedactingFormatter(logging.Formatter):
