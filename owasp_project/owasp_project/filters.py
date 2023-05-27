@@ -19,6 +19,23 @@ class SensitiveDataFilter(logging.Filter):
         return True
 
 class RedactingFormatter(logging.Formatter):
+    def __init__(self,  *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.regex_patterns = {
+            r'\d{4}-\d{2}-\d{2}': '****-**-**',  # Date of birth in yyyy-mm-dd format
+            r'\b(\d{3}-\d{2}-\d{4})\b': '***-**-****',  # Social Security Number (SSN) format
+            r'\b(\d{4}\s?\d{4}\s?\d{4}\s?\d{4})\b': '**** **** **** ****',  # Credit card number format
+            r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b': '***@***.com', # Email id
+        }
+
+    def format(self, record):
+        formatter = logging.Formatter()
+        log_message = formatter.format(record)
+        if record.msg:
+            for pattern, replacement in self.regex_patterns.items():
+                log_message = re.sub(pattern, replacement, log_message)
+        return log_message
+    '''
     def format(self, record):
         message = super().format(record)
         email_regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
@@ -35,3 +52,4 @@ class RedactingFormatter(logging.Formatter):
         hash_object = hashlib.new(algorithm)
         hash_object.update(string.encode('utf-8'))
         return hash_object.hexdigest()
+    '''
