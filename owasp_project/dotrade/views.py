@@ -103,7 +103,10 @@ def comment_detail(request, comment_id):
     #query = f"SELECT * FROM dotrade_comment WHERE id = '{comment_id}'"
     #query = f"SELECT * FROM dotrade_comment WHERE id = %s"
     #comments = Comment.objects.raw(query, [comment_id])
-    comment = get_object_or_404(Comment, pk=comment_id)
+    try:
+        comment = get_object_or_404(Comment, pk=comment_id)
+    except Exception:
+        return HttpResponse("No comment found with that id")
     if request.method == 'POST':
         form = EmailForm(request.POST)
         if form.is_valid():
