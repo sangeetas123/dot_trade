@@ -26,7 +26,9 @@ from cryptography.fernet import Fernet
 from datetime import datetime, timedelta
 from django.core.signing import Signer
 
+import logging
 
+logger = logging.getLogger('dotrade')
 
 def index(request):
     return render(request, 'dotrade/index.html')
@@ -38,6 +40,7 @@ def dashboard(request):
         userPurchasedStocks = get_list_or_404(PurchasedStock, userId=request.user.id)
         context = {'stocks': userPurchasedStocks}
         response = render(request, 'dotrade/dashboard.html', context)
+        logger.info('Loading the dashboard')
         return store_cookie(request, response)
     except Http404:
         return render(request, 'dotrade/nothing.html')
@@ -100,7 +103,10 @@ def comment_detail(request, comment_id):
     #query = f"SELECT * FROM dotrade_comment WHERE id = '{comment_id}'"
     #query = f"SELECT * FROM dotrade_comment WHERE id = %s"
     #comments = Comment.objects.raw(query, [comment_id])
-    comment = get_object_or_404(Comment, pk=comment_id)
+    try:
+        comment = get_object_or_404(Comment, pk=comment_id)
+    except Exception:
+        return HttpResponse("No comment found with that id")
     if request.method == 'POST':
         form = EmailForm(request.POST)
         if form.is_valid():
@@ -137,9 +143,9 @@ def store_cookie(request, response):
         # Create a Signer instance
 
         encrypted_cookie_value = signer.unsign(signed_cookie_value)
-        print("Cookie value ", f.decrypt(encrypted_cookie_value.encode()))
+        logger.debug("[sensitive] Cookie value %s", f.decrypt(encrypted_cookie_value.encode()))
     else:
-        print("No cookie by that name, it might have expired")
+        logger.debug("[sensitive] No cookie by that name, it might have expired")
         encrypted_data = f.encrypt(bytes(request.user.email, 'utf-8'))
         signed_data = signer.sign(encrypted_data.decode())
         expiry_time = datetime.now() + timedelta(seconds=30)
@@ -173,8 +179,13 @@ def edit_profile_view(request):
 
             if not cleaned_save_payment_information:
                 cleaned_credit_card = None
-            print("PROFILES ", cleaned_first_name, " ", cleaned_last_name, " ",
-                  cleaned_credit_card, " ", cleaned_date_of_birth, " ", cleaned_save_payment_information)
+
+            #print("PROFILES ", cleaned_first_name, " ", cleaned_last_name, " ",
+            #                cleaned_credit_card, " ", cleaned_date_of_birth, " ",
+            #      cleaned_save_payment_information)
+            logger.info("PROFILES Name %s %s, Credit card %s, DOB %s, Save infor %s",
+                        cleaned_first_name, cleaned_last_name, cleaned_credit_card,
+                        cleaned_date_of_birth, cleaned_save_payment_information)
 
             Profile.objects.update_or_create(userId=request.user,
                                              defaults={'first_name': cleaned_first_name,

@@ -20,7 +20,7 @@ class EmailForm(forms.Form):
     email = forms.EmailField(required=True)
 
 class ProfileForm(forms.ModelForm):
-    credit_card = forms.CharField(max_length=10)
+    credit_card = forms.CharField(max_length=20)
     class Meta:
         model = Profile
         fields = ['first_name', 'last_name', 'date_of_birth',

@@ -11,6 +11,8 @@ from django_otp.decorators import otp_required
 
 from django.shortcuts import render
 
+import logging
+
 def login_wrapper(login_func):
 
     @ratelimit(key='ip', method='POST', rate='2/5m')
@@ -19,10 +21,12 @@ def login_wrapper(login_func):
 
     return admin_login
 
+logger = logging.getLogger('security')
 
 def handler403(request, exception=None):
     if isinstance(exception, Ratelimited):
         messages.error(request, 'Too many incorrect login attempts, please wait 5 minutes')
+        logger.warning('Multiple incorrect login attempts!!!')
         return redirect('/admin')
     return HttpResponseForbidden('Forbidden')
 

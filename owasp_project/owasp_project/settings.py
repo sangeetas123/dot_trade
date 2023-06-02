@@ -158,3 +158,31 @@ CSRF_COOKIE_HTTPONLY = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_REDIRECT = True
 SECURE_HSTS_SECONDS = 31536000  # 1 year
+
+#Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'sensitive_data': {
+            '()': 'owasp_project.filters.SensitiveDataFilter',
+        },
+    },
+    'formatters': {
+        'redacting_formatter': {
+            '()': 'owasp_project.filters.RedactingFormatter',
+            'format': '%(levelname)s %(message)s',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            #'filters': ['sensitive_data'],
+            'formatter': 'redacting_formatter',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',  # Set the default log level for the root logger
+    },
+}
