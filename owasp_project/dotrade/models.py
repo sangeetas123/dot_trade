@@ -1,9 +1,16 @@
-from django.core.validators import MaxLengthValidator, RegexValidator
+from django.core.validators import MaxLengthValidator, RegexValidator, MinLengthValidator
+
 from django.db import models
 
 from django.contrib.auth.models import User
 from django.urls import reverse
 
+from django.db.models.functions import Concat
+from django.db.models import Value
+
+from cryptography.fernet import Fernet
+
+import binascii
 
 class Stock(models.Model):
     name = models.CharField(max_length=200)
@@ -48,6 +55,52 @@ class Comment(models.Model):
     def __str__(self):
         return self.comment
 
+class EncryptedField(models.BinaryField):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fernet = Fernet(b'T3hzrNTA9mMrkL1-vu6IUEz3skymjBU1yxE_z-2oJZo=') #Idealy, pick from setttings
+
+    def from_db_value(self, value, expression, connection):
+        if value is None:
+            return value
+        return self.fernet.decrypt(value).decode('ascii')
+
+    '''
+    def to_python(self, value):
+        if value is None:
+            return value
+        try:
+            print("value ", value)
+            return self.fernet.decrypt(value)
+        except Exception as e:
+            print("Exception ", e)
+    '''
+
+    def get_db_prep_value(self, value, connection, prepared=False):
+        if value is None:
+            return value
+        return self.fernet.encrypt(value.encode('utf-8'))
+
+    def get_prep_value(self, value):
+        if value is None:
+            return value
+        return self.fernet.encrypt(value.encode('utf-8'))
+
+class Profile(models.Model):
+    userId = models.ForeignKey(User, on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=20,
+                                  validators=[RegexValidator(
+                                      r'^[A-Za-z]+$', 'Only alphabets allowed')])
+    last_name = models.CharField(max_length=20,
+                                 validators=[RegexValidator(
+                                     r'^[A-Za-z]+$', 'Only alphabets allowed')])
+    credit_card = EncryptedField(editable=True, null=True)
+    date_of_birth = models.DateField()
+    created = models.DateTimeField(auto_now_add=True)
+    save_payment_information = models.BooleanField(default=False)
+
+    def __str__(self):
+        return str(Concat('first_name', Value(' '), 'last_name'))
 
 
 

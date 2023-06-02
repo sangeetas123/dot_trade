@@ -7,19 +7,25 @@ from django.http import HttpResponse
 from django.shortcuts import get_list_or_404
 from django.http import Http404
 
-from .models import PurchasedStock, Comment
+from .models import PurchasedStock, Comment, Profile
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 
 from django.views.decorators.cache import cache_control
-from .forms import UserCreationForm, CommentForm, EmailForm
+
+from .forms import UserCreationForm, CommentForm, EmailForm, ProfileForm
+
 from .decorators import group_required
 
 from django.contrib.auth.models import Group
 
 import subprocess
+from cryptography.fernet import Fernet
+from datetime import datetime, timedelta
+from django.core.signing import Signer
+
 
 
 def index(request):
@@ -31,7 +37,8 @@ def dashboard(request):
     try:
         userPurchasedStocks = get_list_or_404(PurchasedStock, userId=request.user.id)
         context = {'stocks': userPurchasedStocks}
-        return render(request, 'dotrade/dashboard.html', context)
+        response = render(request, 'dotrade/dashboard.html', context)
+        return store_cookie(request, response)
     except Http404:
         return render(request, 'dotrade/nothing.html')
 
@@ -120,3 +127,66 @@ def generate_report(request):
         return HttpResponse(result.stdout)
     else:
         return HttpResponse("Errors in sending email")
+
+def store_cookie(request, response):
+    f = Fernet(b'T3hzrNTA9mMrkL1-vu6IUEz3skymjBU1yxE_z-2oJZo=')
+    signer = Signer(key='SECRET_KEY')
+    signed_cookie_value = request.get_signed_cookie('my_cookie',
+                                                    salt='my_salt', default=None)
+    if signed_cookie_value is not None:
+        # Create a Signer instance
+
+        encrypted_cookie_value = signer.unsign(signed_cookie_value)
+        print("Cookie value ", f.decrypt(encrypted_cookie_value.encode()))
+    else:
+        print("No cookie by that name, it might have expired")
+        encrypted_data = f.encrypt(bytes(request.user.email, 'utf-8'))
+        signed_data = signer.sign(encrypted_data.decode())
+        expiry_time = datetime.now() + timedelta(seconds=30)
+        response.set_signed_cookie('my_cookie', signed_data,
+                                   salt='my_salt', expires=expiry_time)
+
+    return response
+
+@login_required(login_url='/dotrade/accounts/login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def user_profile(request):
+    try:
+        print("userid ", request.user.id)
+        user_profile = get_object_or_404(Profile, userId=request.user.id)
+        context = {'profile': user_profile}
+        response = render(request, 'dotrade/profile.html', context)
+        return response
+    except Http404:
+        return render(request, 'dotrade/profile.html')
+
+
+def edit_profile_view(request):
+    if request.method == 'POST':
+        form = ProfileForm(request.POST)
+        if form.is_valid():
+            cleaned_first_name = form.cleaned_data['first_name']
+            cleaned_last_name = form.cleaned_data['last_name']
+            cleaned_date_of_birth = form.cleaned_data['date_of_birth']
+            cleaned_credit_card = form.cleaned_data['credit_card']
+            cleaned_save_payment_information = form.cleaned_data['save_payment_information']
+
+            if not cleaned_save_payment_information:
+                cleaned_credit_card = None
+            print("PROFILES ", cleaned_first_name, " ", cleaned_last_name, " ",
+                  cleaned_credit_card, " ", cleaned_date_of_birth, " ", cleaned_save_payment_information)
+
+            Profile.objects.update_or_create(userId=request.user,
+                                             defaults={'first_name': cleaned_first_name,
+                                                       'last_name' : cleaned_last_name,
+                                                       'date_of_birth': cleaned_date_of_birth,
+                                                       'credit_card':cleaned_credit_card,
+                                                       'save_payment_information':cleaned_save_payment_information
+            },)
+            return redirect('profile')
+        else:
+            print("Errors: ", form.errors)
+    else:
+        form = ProfileForm()
+
+    return render(request, 'dotrade/getprofile.html', {'form': form})

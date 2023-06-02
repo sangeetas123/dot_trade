@@ -32,6 +32,8 @@ from django.shortcuts import redirect
 from . import views
 from .views import login_wrapper
 
+from django.urls import include, path
+
 class OTPAdmin(OTPAdminSite):
     pass
 
