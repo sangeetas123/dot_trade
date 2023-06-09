@@ -43,6 +43,7 @@
   color: white;
   font-size: 20px;
 }
+
 </style>
 </head>
 <body>
@@ -50,6 +51,9 @@
 <div class="header">
   <h2>Welcome to the analytics page!</h2>
 </div>
+{% load static %}
+<script src="{% static 'message.js' %}"></script>
+<p><button onclick="requestAccess()">Request Early Access!</button></p>
 
 </body>
 </html>

@@ -186,3 +186,10 @@ LOGGING = {
         'level': 'DEBUG',  # Set the default log level for the root logger
     },
 }
+
+
+# static files
+STATIC_URL = "static/"
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
