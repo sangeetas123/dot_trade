@@ -27,7 +27,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-print("Environment ", os.environ.get('DJANGO_ENV'))
 #Logging
 LOGGING = {
     'version': 1,
@@ -56,10 +55,12 @@ LOGGING = {
     },
 }
 
+print("Environment ", os.environ.get('DJANGO_ENV'))
 if os.environ.get('DJANGO_ENV', 'development') == 'production':
     DEBUG = False
     ALLOWED_HOSTS = ['127.0.0.1'] # Production host
     SECRET_KEY = os.environ.get('SECRET_KEY')
+    # Logging
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,
@@ -119,6 +120,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_otp.middleware.OTPMiddleware',
     'owasp_project.middleware.AdminSiteMiddleware',
+    'dotrade.middleware.HeaderMiddleware',
 ]
 
 ROOT_URLCONF = 'owasp_project.urls'
