@@ -229,3 +229,10 @@ STATIC_URL = "static/"
 STATICFILES_DIRS = [
     BASE_DIR / "dotrade/static",
 ]
+
+
+# Security headers
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_REFERRER_POLICY = 'same-origin'
+SECURE_CONTENT_DISPOSITION = 'attachment'
