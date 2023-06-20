@@ -121,6 +121,7 @@ MIDDLEWARE = [
     'django_otp.middleware.OTPMiddleware',
     'owasp_project.middleware.AdminSiteMiddleware',
     'dotrade.middleware.HeaderMiddleware',
+    'dotrade.middleware.AllowGetPostMiddleware',
 ]
 
 ROOT_URLCONF = 'owasp_project.urls'
