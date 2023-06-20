@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,6 +26,68 @@ SECRET_KEY = 'django-insecure-z&gg+(brys1=r^u@(u*eevo-rihh%+j*vp^#0hqs_s3e@ig4am
 DEBUG = True
 
 ALLOWED_HOSTS = []
+
+#Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'sensitive_data': {
+            '()': 'owasp_project.filters.SensitiveDataFilter',
+        },
+    },
+    'formatters': {
+        'redacting_formatter': {
+            '()': 'owasp_project.filters.RedactingFormatter',
+            'format': '%(levelname)s %(message)s',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            #'filters': ['sensitive_data'],
+            'formatter': 'redacting_formatter',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',  # Set the default log level for the root logger
+    },
+}
+
+print("Environment ", os.environ.get('DJANGO_ENV'))
+if os.environ.get('DJANGO_ENV', 'development') == 'production':
+    DEBUG = False
+    ALLOWED_HOSTS = ['127.0.0.1'] # Production host
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+    # Logging
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'filters': {
+            'sensitive_data': {
+                '()': 'owasp_project.filters.SensitiveDataFilter',
+            },
+        },
+        'formatters': {
+            'redacting_formatter': {
+                '()': 'owasp_project.filters.RedactingFormatter',
+                'format': '%(levelname)s %(message)s',
+            },
+        },
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler',
+                # 'filters': ['sensitive_data'],
+                'formatter': 'redacting_formatter',
+            },
+        },
+        'root': {
+            'handlers': ['console'],
+            'level': 'INFO',  # Set the default log level for the root logger
+        },
+    }
+
 
 
 # Application definition
@@ -57,6 +120,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_otp.middleware.OTPMiddleware',
     'owasp_project.middleware.AdminSiteMiddleware',
+    'dotrade.middleware.HeaderMiddleware',
+    'dotrade.middleware.AllowGetPostMiddleware',
 ]
 
 ROOT_URLCONF = 'owasp_project.urls'
@@ -159,30 +224,15 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_REDIRECT = True
 SECURE_HSTS_SECONDS = 31536000  # 1 year
 
-#Logging
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'filters': {
-        'sensitive_data': {
-            '()': 'owasp_project.filters.SensitiveDataFilter',
-        },
-    },
-    'formatters': {
-        'redacting_formatter': {
-            '()': 'owasp_project.filters.RedactingFormatter',
-            'format': '%(levelname)s %(message)s',
-        },
-    },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            #'filters': ['sensitive_data'],
-            'formatter': 'redacting_formatter',
-        },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'DEBUG',  # Set the default log level for the root logger
-    },
-}
+# static files
+STATIC_URL = "static/"
+STATICFILES_DIRS = [
+    BASE_DIR / "dotrade/static",
+]
+
+
+# Security headers
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_REFERRER_POLICY = 'same-origin'
+SECURE_CONTENT_DISPOSITION = 'attachment'

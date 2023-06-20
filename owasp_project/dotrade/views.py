@@ -41,6 +41,7 @@ def dashboard(request):
         context = {'stocks': userPurchasedStocks}
         response = render(request, 'dotrade/dashboard.html', context)
         logger.info('Loading the dashboard')
+        logger.debug('User has %d stocks in total ', len(userPurchasedStocks))
         return store_cookie(request, response)
     except Http404:
         return render(request, 'dotrade/nothing.html')
