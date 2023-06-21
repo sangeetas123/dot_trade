@@ -1,5 +1,6 @@
 import os
 
+from django.contrib.auth.tokens import default_token_generator
 from django.db.models.expressions import RawSQL
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
@@ -15,7 +16,8 @@ from django.contrib.auth.models import User
 
 from django.views.decorators.cache import cache_control
 
-from .forms import UserCreationForm, CommentForm, EmailForm, ProfileForm
+from .forms import UserCreationForm, CommentForm, EmailForm, ProfileForm, EmailConfirmationForm, KYCForm, \
+    CustomUserCreationForm
 
 from .decorators import group_required
 
@@ -57,22 +59,72 @@ def logout_view(request):
 
 def signupView(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=password)
-            login(request, user)
+            email = form.cleaned_data.get('email')
 
-            # add the user to the group
-            group = Group.objects.get(name='Customers')
-            user.groups.add(group)
+            # Create user
+            user = User.objects.create_user(username=username, password=password, email=email)
+            user.is_active = False
+            user.save()
 
-            return redirect('/dotrade/dashboard')
+            request.session['user_pk'] = user.pk
+            token = default_token_generator.make_token(user)
+            print("Token is ", token)
+
+
+
+            request.session['step'] = 1
+            return redirect('/dotrade/email_confirmation')
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
     return render(request, 'registration/signup.html', {'form': form})
+
+def email_confirmation_view(request):
+    if request.method == 'POST':
+        form = EmailConfirmationForm(request.POST)
+        if form.is_valid():
+            confirmation_code = form.cleaned_data['confirmation_code']
+            user_pk = request.session.get('user_pk')
+            print("User ", user_pk)
+            user = User.objects.get(pk=user_pk)
+
+
+            if default_token_generator.check_token(user, confirmation_code):
+                user.is_active = True
+                user.save()
+
+                # Authenticate the user
+                #authenticated_user = authenticate(username=user.username, password=user.password)
+                login(request, user)
+                # add the user to the group
+                group = Group.objects.get(name='Customers')
+                user.groups.add(group)
+
+                request.session['step'] = 2  # Set the user's current step to 2 (KYC page)
+                return redirect('kyc_page')
+            else:
+                form.add_error('confirmation_code', 'Invalid confirmation code')
+    else:
+        form = EmailConfirmationForm()
+
+        return render(request, 'dotrade/email_confirmation.html', {'form': form})
+
+def kyc_page(request):
+    if request.method == 'POST':
+        form = KYCForm(request.POST)
+        if form.is_valid():
+            # Process KYC form data
+            kyc_data = form.cleaned_data['kyc_data']
+
+            request.session['step'] = 3  # Set the user's current step to 3 (completed)
+            return redirect('dashboard')
+    else:
+        form = KYCForm()
+
+    return render(request, 'dotrade/kyc_page.html', {'form': form})
 
 def commentView(request):
     comments = Comment.objects.filter(user=request.user)

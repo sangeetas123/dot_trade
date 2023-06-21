@@ -26,5 +26,18 @@ class ProfileForm(forms.ModelForm):
         fields = ['first_name', 'last_name', 'date_of_birth',
                   'save_payment_information']
 
+class CustomUserCreationForm(UserCreationForm):
+    email = forms.EmailField(required=True)
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password1', 'password2']
+
 class EmailForm(forms.Form):
     email = forms.EmailField(required=True)
+
+class EmailConfirmationForm(forms.Form):
+    confirmation_code = forms.CharField(label='Confirmation Code', required=True, max_length=100)
+
+class KYCForm(forms.Form):
+    kyc_data = forms.CharField(label='KYC Data', max_length=100)

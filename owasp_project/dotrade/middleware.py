@@ -18,8 +18,8 @@ class AllowGetPostMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if request.method not in ['GET', 'PUT']:
+        if request.method not in ['GET', 'POST']:
             logger.info('Request with invalid method %s', request.method)
-            return HttpResponseNotAllowed(['GET', 'PUT'])
+            return HttpResponseNotAllowed(['GET', 'POST'])
 
         return self.get_response(request)
