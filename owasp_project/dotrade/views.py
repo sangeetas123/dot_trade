@@ -74,8 +74,6 @@ def signupView(request):
             token = default_token_generator.make_token(user)
             print("Token is ", token)
 
-
-
             request.session['step'] = 1
             return redirect('/dotrade/email_confirmation')
     else:
@@ -91,21 +89,8 @@ def email_confirmation_view(request):
         if form.is_valid():
             confirmation_code = form.cleaned_data['confirmation_code']
             user_pk = request.session.get('user_pk')
-            print("User ", user_pk)
             user = User.objects.get(pk=user_pk)
-
-
             if default_token_generator.check_token(user, confirmation_code):
-                user.is_active = True
-                user.save()
-
-                # Authenticate the user
-                #authenticated_user = authenticate(username=user.username, password=user.password)
-                login(request, user)
-                # add the user to the group
-                group = Group.objects.get(name='Customers')
-                user.groups.add(group)
-
                 request.session['step'] = 2  # Set the user's current step to 2 (KYC page)
                 return redirect('kyc_page')
             else:
@@ -121,12 +106,20 @@ def kyc_page(request):
             return redirect('email_confirmation')
         else:
             return redirect('signup')
-
     if request.method == 'POST':
         form = KYCForm(request.POST)
         if form.is_valid():
             # Process KYC form data
             kyc_data = form.cleaned_data['kyc_data']
+
+            user_pk = request.session.get('user_pk')
+            user = User.objects.get(pk=user_pk)
+            user.is_active = True
+            user.save()
+            login(request, user)
+            # add the user to the group
+            group = Group.objects.get(name='Customers')
+            user.groups.add(group)
 
             request.session['step'] = 3  # Set the user's current step to 3 (completed)
             return redirect('dashboard')
