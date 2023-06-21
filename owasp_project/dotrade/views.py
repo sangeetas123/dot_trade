@@ -83,6 +83,9 @@ def signupView(request):
     return render(request, 'registration/signup.html', {'form': form})
 
 def email_confirmation_view(request):
+    if request.session.get('step') != 1:
+        return redirect('signup')
+
     if request.method == 'POST':
         form = EmailConfirmationForm(request.POST)
         if form.is_valid():
@@ -113,6 +116,12 @@ def email_confirmation_view(request):
         return render(request, 'dotrade/email_confirmation.html', {'form': form})
 
 def kyc_page(request):
+    if request.session.get('step') != 2:
+        if request.session.get('step') == 1:
+            return redirect('email_confirmation')
+        else:
+            return redirect('signup')
+
     if request.method == 'POST':
         form = KYCForm(request.POST)
         if form.is_valid():
