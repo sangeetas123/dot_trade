@@ -98,7 +98,7 @@ def email_confirmation_view(request):
     else:
         form = EmailConfirmationForm()
 
-        return render(request, 'dotrade/email_confirmation.html', {'form': form})
+    return render(request, 'dotrade/email_confirmation.html', {'form': form})
 
 def kyc_page(request):
     if request.session.get('step') != 2:
