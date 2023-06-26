@@ -20,5 +20,7 @@ urlpatterns = [
     path('email/', views.generate_report, name='email'),
     path('profile/', views.user_profile, name='profile'),
     path('edit_profile/', views.edit_profile_view, name='edit_profile'),
+    path('email_confirmation/', views.email_confirmation_view, name='email_confirmation'),
+    path('kyc/', views.kyc_page, name='kyc_page'),
 
 ]

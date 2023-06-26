@@ -1,8 +1,10 @@
+import json
 import os
 
+from django.contrib.auth.tokens import default_token_generator
 from django.db.models.expressions import RawSQL
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 from django.shortcuts import get_list_or_404
 from django.http import Http404
@@ -15,7 +17,8 @@ from django.contrib.auth.models import User
 
 from django.views.decorators.cache import cache_control
 
-from .forms import UserCreationForm, CommentForm, EmailForm, ProfileForm
+from .forms import UserCreationForm, CommentForm, EmailForm, ProfileForm, EmailConfirmationForm, KYCForm, \
+    CustomUserCreationForm
 
 from .decorators import group_required
 
@@ -57,29 +60,94 @@ def logout_view(request):
 
 def signupView(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=password)
-            login(request, user)
+            email = form.cleaned_data.get('email')
 
+            # Create user
+            user = User.objects.create_user(username=username, password=password, email=email)
+
+            user.save()
+
+            request.session['user_pk'] = user.pk
+            token = default_token_generator.make_token(user)
+            print("Token is ", token)
+            request.session['step'] = 1
+
+            return redirect('/dotrade/email_confirmation')
+    else:
+        form = CustomUserCreationForm()
+    return render(request, 'registration/signup.html', {'form': form})
+
+def email_confirmation_view(request):
+    if request.session.get('step') != 1:
+        return redirect('signup')
+
+    if request.method == 'POST':
+        form = EmailConfirmationForm(request.POST)
+        if form.is_valid():
+            confirmation_code = form.cleaned_data['confirmation_code']
+            user_pk = request.session.get('user_pk')
+            user = User.objects.get(pk=user_pk)
+            if default_token_generator.check_token(user, confirmation_code):
+                request.session['step'] = 2  # Set the user's current step to 2 (KYC page)
+                return redirect('kyc_page')
+            else:
+                form.add_error('confirmation_code', 'Invalid confirmation code')
+    else:
+        form = EmailConfirmationForm()
+
+    return render(request, 'dotrade/email_confirmation.html', {'form': form})
+
+def kyc_page(request):
+    if request.session.get('step') != 2:
+        if request.session.get('step') == 1:
+            return redirect('email_confirmation')
+        else:
+            return redirect('signup')
+
+    if request.method == 'POST':
+        form = KYCForm(request.POST)
+        if form.is_valid():
+            # Process KYC form data
+            kyc_data = form.cleaned_data['kyc_data']
+
+            user_pk = request.session.get('user_pk')
+            user = User.objects.get(pk=user_pk)
+            user.is_active = True
+            user.save()
+            login(request, user)
             # add the user to the group
             group = Group.objects.get(name='Customers')
             user.groups.add(group)
 
-            return redirect('/dotrade/dashboard')
+            request.session['step'] = 3  # Set the user's current step to 3 (completed)
+            return redirect('dashboard')
     else:
-        form = UserCreationForm()
-    return render(request, 'registration/signup.html', {'form': form})
+        form = KYCForm()
+
+    return render(request, 'dotrade/kyc_page.html', {'form': form})
+
+MIN_FORM_SUBMISSION_INTERVAL = 10
 
 def commentView(request):
     comments = Comment.objects.filter(user=request.user)
 
     if request.method == 'POST':
+        last_submission_time = request.session.get('last_submission_time')
+        if last_submission_time and \
+                int(datetime.now().timestamp() - last_submission_time) < MIN_FORM_SUBMISSION_INTERVAL:
+            # Too soon, display an error message or take appropriate action
+            error_message = 'Please wait before submitting the feedback again.'
+            return render(request, 'dotrade/error.html',
+                          {'form': CommentForm(), 'error_message': error_message}, status=400)
+
+
         form = CommentForm(request.POST)
         if form.is_valid():
+            request.session['last_submission_time'] = datetime.now().timestamp()
             comment_text = form.cleaned_data['comment']
             comment = Comment(user=request.user, comment=comment_text)
             comment.save()
