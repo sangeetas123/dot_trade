@@ -113,6 +113,15 @@ def kyc_page(request):
         if form.is_valid():
             # Process KYC form data
             kyc_data = form.cleaned_data['kyc_data']
+            file = request.FILES.get('file')
+            if file:
+                # Check the file size
+                if file.size > 100 * 1024:  # 2KB limit
+                    error_message = 'File size exceeds the maximum limit of 2KB.'
+                    return render(request, 'dotrade/kyc_page.html', {'form': KYCForm(), 'error_message': error_message})
+
+                # Process the uploaded file
+                handle_uploaded_file(file)
 
             user_pk = request.session.get('user_pk')
             user = User.objects.get(pk=user_pk)
@@ -129,6 +138,9 @@ def kyc_page(request):
         form = KYCForm()
 
     return render(request, 'dotrade/kyc_page.html', {'form': form})
+
+def handle_uploaded_file(file):
+    logger.info("Processing KYC file")
 
 MIN_FORM_SUBMISSION_INTERVAL = 10
 

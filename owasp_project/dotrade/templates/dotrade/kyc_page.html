@@ -52,11 +52,15 @@
 </div>
 {% block content %}
   <h2>KYC Details</h2>
-  <form method="post">
+  <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Confirm</button>
+    <button type="submit">Upload</button>
+    {% if error_message %}
+        <p class="error">{{ error_message }}</p>
+    {% endif %}
   </form>
+
 {% endblock %}
 </body>
 </html>

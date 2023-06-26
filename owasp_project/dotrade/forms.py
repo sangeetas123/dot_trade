@@ -40,3 +40,4 @@ class EmailConfirmationForm(forms.Form):
 
 class KYCForm(forms.Form):
     kyc_data = forms.CharField(label='KYC Data', max_length=100)
+    file = forms.FileField(required=False)
