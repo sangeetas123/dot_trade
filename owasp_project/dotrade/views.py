@@ -1,9 +1,10 @@
+import json
 import os
 
 from django.contrib.auth.tokens import default_token_generator
 from django.db.models.expressions import RawSQL
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 from django.shortcuts import get_list_or_404
 from django.http import Http404
@@ -67,14 +68,14 @@ def signupView(request):
 
             # Create user
             user = User.objects.create_user(username=username, password=password, email=email)
-            user.is_active = False
+
             user.save()
 
             request.session['user_pk'] = user.pk
             token = default_token_generator.make_token(user)
             print("Token is ", token)
-
             request.session['step'] = 1
+
             return redirect('/dotrade/email_confirmation')
     else:
         form = CustomUserCreationForm()
@@ -106,6 +107,7 @@ def kyc_page(request):
             return redirect('email_confirmation')
         else:
             return redirect('signup')
+
     if request.method == 'POST':
         form = KYCForm(request.POST)
         if form.is_valid():
@@ -128,12 +130,24 @@ def kyc_page(request):
 
     return render(request, 'dotrade/kyc_page.html', {'form': form})
 
+MIN_FORM_SUBMISSION_INTERVAL = 10
+
 def commentView(request):
     comments = Comment.objects.filter(user=request.user)
 
     if request.method == 'POST':
+        last_submission_time = request.session.get('last_submission_time')
+        if last_submission_time and \
+                int(datetime.now().timestamp() - last_submission_time) < MIN_FORM_SUBMISSION_INTERVAL:
+            # Too soon, display an error message or take appropriate action
+            error_message = 'Please wait before submitting the feedback again.'
+            return render(request, 'dotrade/error.html',
+                          {'form': CommentForm(), 'error_message': error_message}, status=400)
+
+
         form = CommentForm(request.POST)
         if form.is_valid():
+            request.session['last_submission_time'] = datetime.now().timestamp()
             comment_text = form.cleaned_data['comment']
             comment = Comment(user=request.user, comment=comment_text)
             comment.save()

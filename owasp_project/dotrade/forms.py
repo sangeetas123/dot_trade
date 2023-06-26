@@ -5,7 +5,6 @@ from django.core.validators import MaxLengthValidator, RegexValidator
 
 from .models import Comment, Profile
 
-
 class CommentForm(forms.ModelForm):
     comment = forms.CharField(validators=[MaxLengthValidator(10),
                                           RegexValidator(r'^[a-zA-Z0-9\s.]+$',

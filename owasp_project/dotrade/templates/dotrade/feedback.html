@@ -1,16 +1,63 @@
-<form method="post" action="{% url 'comment' %}">
-    {% csrf_token %}
-    <label for="comment">Comment:</label>
-    <textarea id="comment" name="comment"></textarea>
-    <input type="submit" value="Submit">
-</form>
+<!DOCTYPE html>
+<html>
+<head>
+<style>
 
-{% if form.errors %}
-  <div class="errors">
-    {% for field in form %}
-      {% for error in field.errors %}
-        <p>{{ error }}</p>
-      {% endfor %}
-    {% endfor %}
-  </div>
-{% endif %}
+.styled-table {
+    border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    width: 80%;
+    min-width: 400px;
+}
+.styled-table thead tr {
+    background-color: #009879;
+    color: #ffffff;
+    text-align: left;
+}
+.styled-table td {
+    padding: 12px 15px;
+}
+
+.styled-table th {
+    padding: 12px 15px;
+    background-color: #E6E6FA;
+}
+.styled-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.styled-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+.styled-table tbody tr:last-of-type {
+    border-bottom: 2px solid #009879;
+}
+.header {
+  padding: 10px;
+  text-align: center;
+  background: #1abc9c;
+  color: white;
+  font-size: 20px;
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <h2>Feedback</h2>
+
+</div>
+{% block content %}
+  <h2>Comment</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Confirm</button>
+  </form>
+{% endblock %}
+</body>
+</html>
+
