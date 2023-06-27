@@ -2,6 +2,7 @@ import json
 import os
 
 from django.contrib.auth.tokens import default_token_generator
+from django.core.files.storage import FileSystemStorage
 from django.db.models.expressions import RawSQL
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse
@@ -140,6 +141,7 @@ def kyc_page(request):
     return render(request, 'dotrade/kyc_page.html', {'form': form})
 
 def handle_uploaded_file(file):
+    filename = FileSystemStorage().save(file.name, file)
     logger.info("Processing KYC file")
 
 MIN_FORM_SUBMISSION_INTERVAL = 10
