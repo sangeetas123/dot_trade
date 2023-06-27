@@ -1,5 +1,6 @@
 import json
 import os
+import pyclamd
 
 from django.contrib.auth.tokens import default_token_generator
 from django.core.files.storage import FileSystemStorage
@@ -122,7 +123,9 @@ def kyc_page(request):
                     return render(request, 'dotrade/kyc_page.html', {'form': KYCForm(), 'error_message': error_message})
 
                 # Process the uploaded file
-                handle_uploaded_file(file)
+                error_message = handle_uploaded_file(file)
+                if error_message:
+                    return render(request, 'dotrade/kyc_page.html', {'form': KYCForm(), 'error_message': error_message})
 
             user_pk = request.session.get('user_pk')
             user = User.objects.get(pk=user_pk)
@@ -142,7 +145,26 @@ def kyc_page(request):
 
 def handle_uploaded_file(file):
     filename = FileSystemStorage().save(file.name, file)
+
+    # Check the filename for sanity (e.g., disallow special characters)
+    filename_without_extension = file.name.rsplit('.', 1)[0]
+    if not filename_without_extension.isalnum():
+        return 'Invalid filename. Only alphanumeric characters are allowed.'
+
+    cd = pyclamd.ClamdUnixSocket("/tmp/clamd.socket")
+    if not cd.ping():
+        print('ClamAV daemon is not running or not reachable')
+        return "Not reachable"
+
+    file.seek(0)
+    scan_result = cd.scan_stream(file.read())
+
+    if scan_result:
+        # File is infected
+        return "Virus detected!!"
+
     logger.info("Processing KYC file")
+
 
 MIN_FORM_SUBMISSION_INTERVAL = 10
 
