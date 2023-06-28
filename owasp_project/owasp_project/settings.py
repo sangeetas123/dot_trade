@@ -240,3 +240,6 @@ SECURE_BROWSER_XSS_FILTER = True
 SECURE_REFERRER_POLICY = 'same-origin'
 SECURE_CONTENT_DISPOSITION = 'attachment'
 
+# File storage
+MEDIA_ROOT = '/Users/username/Documents/Pluralsight/Files/'
+
