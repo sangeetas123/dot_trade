@@ -1,7 +1,14 @@
 import json
 import os
+import uuid
+from urllib.parse import urlparse
+
+import pyclamd
+import magic
+import requests
 
 from django.contrib.auth.tokens import default_token_generator
+from django.core.files.storage import FileSystemStorage
 from django.db.models.expressions import RawSQL
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse
@@ -113,6 +120,25 @@ def kyc_page(request):
         if form.is_valid():
             # Process KYC form data
             kyc_data = form.cleaned_data['kyc_data']
+            file = request.FILES.get('file')
+
+            if file:
+                # Check the file size
+                if file.size > 100 * 1024:  # 100KB limit
+                    error_message = 'File size exceeds the maximum limit of 100KB.'
+                    return render(request, 'dotrade/kyc_page.html',
+                                  {'form': KYCForm(), 'error_message': error_message})
+
+                # Process the uploaded file
+                handle_uploaded_file(file)
+            else:
+                url = form.cleaned_data['url']
+                if is_url_allowed(url):
+                    response = requests.get(url)
+                    return HttpResponse(response.content)
+                else:
+                    return render(request, 'dotrade/kyc_page.html',
+                                  {'form': KYCForm(), 'error_message': "Domain forbidden"})
 
             user_pk = request.session.get('user_pk')
             user = User.objects.get(pk=user_pk)
@@ -129,6 +155,60 @@ def kyc_page(request):
         form = KYCForm()
 
     return render(request, 'dotrade/kyc_page.html', {'form': form})
+
+def is_url_allowed(url):
+    ALLOWED_DOMAINS = ['www.google.com', 'www.pluralsight.com']
+    parsed_url = urlparse(url)
+    domain = parsed_url.netloc
+    return domain in ALLOWED_DOMAINS
+
+def handle_uploaded_file(file):
+    # Check the filename for sanity (e.g., disallow special characters)
+    filename_without_extension = file.name.rsplit('.', 1)[0]
+    if not filename_without_extension.isalnum():
+        return 'Invalid filename. Only alphanumeric characters are allowed.'
+
+    result = check_file_type(file)
+    if result:
+        return result
+
+    if detect_virus(file):
+        return "Virus detected!!"
+
+    random_filename = str(uuid.uuid4()) + "." + file.name.rsplit('.', 1)[1]
+    filename = FileSystemStorage().save(random_filename, file)
+
+    logger.info("Processing KYC file")
+
+def check_file_type(file):
+    # Define allowed file types
+    allowed_file_types = ['image/jpeg', 'application/pdf', 'application/txt']
+
+    # Validate file type
+    if file.content_type not in allowed_file_types:
+        return "Only JPEG, TXT, and PDF files are allowed."
+
+    # Verify file signature
+    file_signature = magic.from_buffer(file.read(2048), mime=True)
+    file.seek(0)  # Reset file pointer after reading
+
+    if file_signature not in allowed_file_types:
+        return  'Invalid file format.'
+
+
+def detect_virus(file):
+    cd = pyclamd.ClamdUnixSocket("/tmp/clamd.socket")
+    if not cd.ping():
+        print('ClamAV daemon is not running or not reachable')
+        return "Not reachable"
+
+    file.seek(0)
+    scan_result = cd.scan_stream(file.read())
+
+    if scan_result:
+        # File is infected
+        return True
+
 
 MIN_FORM_SUBMISSION_INTERVAL = 10
 

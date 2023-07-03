@@ -108,6 +108,9 @@ INSTALLED_APPS = [
 
     #HTTPS
     "sslserver",
+
+    # Anti-virus scan
+    "pyclamd",
 ]
 
 MIDDLEWARE = [
@@ -236,3 +239,7 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_REFERRER_POLICY = 'same-origin'
 SECURE_CONTENT_DISPOSITION = 'attachment'
+
+# File storage
+MEDIA_ROOT = '/Users/username/Documents/Pluralsight/Files/'
+
