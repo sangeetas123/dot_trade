@@ -1,8 +1,11 @@
 import json
 import os
 import uuid
+from urllib.parse import urlparse
+
 import pyclamd
 import magic
+import requests
 
 from django.contrib.auth.tokens import default_token_generator
 from django.core.files.storage import FileSystemStorage
@@ -118,6 +121,7 @@ def kyc_page(request):
             # Process KYC form data
             kyc_data = form.cleaned_data['kyc_data']
             file = request.FILES.get('file')
+
             if file:
                 # Check the file size
                 if file.size > 100 * 1024:  # 100KB limit
@@ -127,6 +131,14 @@ def kyc_page(request):
 
                 # Process the uploaded file
                 handle_uploaded_file(file)
+            else:
+                url = form.cleaned_data['url']
+                if is_url_allowed(url):
+                    response = requests.get(url)
+                    return HttpResponse(response.content)
+                else:
+                    return render(request, 'dotrade/kyc_page.html',
+                                  {'form': KYCForm(), 'error_message': "Domain forbidden"})
 
             user_pk = request.session.get('user_pk')
             user = User.objects.get(pk=user_pk)
@@ -143,6 +155,12 @@ def kyc_page(request):
         form = KYCForm()
 
     return render(request, 'dotrade/kyc_page.html', {'form': form})
+
+def is_url_allowed(url):
+    ALLOWED_DOMAINS = ['www.google.com', 'www.pluralsight.com']
+    parsed_url = urlparse(url)
+    domain = parsed_url.netloc
+    return domain in ALLOWED_DOMAINS
 
 def handle_uploaded_file(file):
     # Check the filename for sanity (e.g., disallow special characters)

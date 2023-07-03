@@ -52,6 +52,7 @@
 </div>
 {% block content %}
   <h2>KYC Details</h2>
+<p>You can provide the document by either uploading the file or providing a url to it</p>
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
