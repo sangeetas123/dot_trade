@@ -243,3 +243,4 @@ SECURE_CONTENT_DISPOSITION = 'attachment'
 # File storage
 MEDIA_ROOT = '/Users/username/Documents/Pluralsight/Files/'
 
+

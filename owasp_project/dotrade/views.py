@@ -350,3 +350,4 @@ def edit_profile_view(request):
         form = ProfileForm()
 
     return render(request, 'dotrade/getprofile.html', {'form': form})
+
