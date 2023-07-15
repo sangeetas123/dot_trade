@@ -2,7 +2,7 @@ from django.urls import path
 from django.urls import include
 
 from django.contrib.auth import views as auth_views
-from . import views
+from . import views, api_views
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -22,5 +22,7 @@ urlpatterns = [
     path('edit_profile/', views.edit_profile_view, name='edit_profile'),
     path('email_confirmation/', views.email_confirmation_view, name='email_confirmation'),
     path('kyc/', views.kyc_page, name='kyc_page'),
+    path('stocks_api/', api_views.get_stocks),
+    path('get_api_key/', api_views.get_api_key, name='get_api_key'),
 
 ]

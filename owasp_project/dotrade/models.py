@@ -103,4 +103,14 @@ class Profile(models.Model):
         return str(Concat('first_name', Value(' '), 'last_name'))
 
 
+from django.db import models
+from django.contrib.auth.models import User
+
+class APIKey(models.Model):
+    key = models.CharField(max_length=255, unique=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.key
 
